@@ -7,6 +7,7 @@ const {
   invalidToken,
 } = require('../constants/err.type')
 
+//验证token是否正确并得到用户信息
 const auth = async (ctx, next) => {
   const { authorization = '' } = ctx.request.header
   const token = authorization.replace('Bearer ', '')
