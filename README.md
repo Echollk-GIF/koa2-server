@@ -454,3 +454,185 @@ class UserController {
 
 module.exports = new UserController()
 ```
+
+# 十. 错误处理
+
+在控制器中, 对不同的错误进行处理, 返回不同的提示错误提示, 提高代码质量
+
+```js
+const { createUser, getUserInfo } = require('../service/user.service')
+
+class UserController {
+  async register(ctx, next) {
+    // 1. 获取数据
+    // console.log(ctx.request.body)
+    const { user_name, password } = ctx.request.body
+
+    // 合法性
+    if (!user_name || !password) {
+      console.error('用户名或密码为空', ctx.request.body)
+      ctx.status = 400
+      ctx.body = {
+        code: '10001',
+        message: '用户名或密码为空',
+        result: '',
+      }
+      return
+    }
+    // 合理性
+    if (getUserInfo({ user_name })) {
+      ctx.status = 409
+      ctx.body = {
+        code: '10002',
+        message: '用户已经存在',
+        result: '',
+      }
+      return
+    }
+    // 2. 操作数据库
+    const res = await createUser(user_name, password)
+    // console.log(res)
+    // 3. 返回结果
+    ctx.body = {
+      code: 0,
+      message: '用户注册成功',
+      result: {
+        id: res.id,
+        user_name: res.user_name,
+      },
+    }
+  }
+
+  async login(ctx, next) {
+    ctx.body = '登录成功'
+  }
+}
+
+module.exports = new UserController()
+```
+
+在 service 中封装函数
+
+```js
+const User = require('../model/use.model')
+
+class UserService {
+  async createUser(user_name, password) {
+    // 插入数据
+    // await表达式: promise对象的值
+    const res = await User.create({ user_name, password })
+    // console.log(res)
+
+    return res.dataValues
+  }
+
+  async getUserInfo({ id, user_name, password, is_admin }) {
+    const whereOpt = {}
+
+    id && Object.assign(whereOpt, { id })
+    user_name && Object.assign(whereOpt, { user_name })
+    password && Object.assign(whereOpt, { password })
+    is_admin && Object.assign(whereOpt, { is_admin })
+
+    const res = await User.findOne({
+      attributes: ['id', 'user_name', 'password', 'is_admin'],
+      where: whereOpt,
+    })
+
+    return res ? res.dataValues : null
+  }
+}
+
+module.exports = new UserService()
+```
+
+# 十一. 拆分中间件
+
+为了使代码的逻辑更加清晰, 我们可以拆分一个中间件层, 封装多个中间件函数
+
+## 1 拆分中间件
+
+添加`src/middleware/user.middleware.js`
+
+```js
+const { getUerInfo } = require('../service/user.service')
+const { userFormateError, userAlreadyExited } = require('../constant/err.type')
+
+const userValidator = async (ctx, next) => {
+  const { user_name, password } = ctx.request.body
+  // 合法性
+  if (!user_name || !password) {
+    console.error('用户名或密码为空', ctx.request.body)
+    ctx.app.emit('error', userFormateError, ctx)
+    return
+  }
+
+  await next()
+}
+
+const verifyUser = async (ctx, next) => {
+  const { user_name } = ctx.request.body
+
+  if (getUerInfo({ user_name })) {
+    ctx.app.emit('error', userAlreadyExited, ctx)
+    return
+  }
+
+  await next()
+}
+
+module.exports = {
+  userValidator,
+  verifyUser,
+}
+```
+
+## 2 统一错误处理
+
+- 在出错的地方使用`ctx.app.emit`提交错误
+- 在 app 中通过`app.on`监听
+
+编写统一的错误定义文件
+
+```js
+module.exports = {
+  userFormateError: {
+    code: '10001',
+    message: '用户名或密码为空',
+    result: '',
+  },
+  userAlreadyExited: {
+    code: '10002',
+    message: '用户已经存在',
+    result: '',
+  },
+}
+```
+
+## 3 错误处理函数
+
+```js
+module.exports = (err, ctx) => {
+  let status = 500
+  switch (err.code) {
+    case '10001':
+      status = 400
+      break
+    case '10002':
+      status = 409
+      break
+    default:
+      status = 500
+  }
+  ctx.status = status
+  ctx.body = err
+}
+```
+
+改写`app/index.js`
+
+```js
+const errHandler = require('./errHandler')
+// 统一的错误处理
+app.on('error', errHandler)
+```
