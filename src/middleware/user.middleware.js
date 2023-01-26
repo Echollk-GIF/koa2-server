@@ -1,9 +1,11 @@
+const bcrypt = require('bcryptjs')
 const { getUserInfo } = require('../service/user.service')
 const {
   userFormateError,
   userAlreadyExited,
   userRegisterError
 } = require('../constants/err.type')
+//验证账号密码是否都存在
 const userValidator = async (ctx, next) => {
   const { user_name, password } = ctx.request.body
   // 合法性
@@ -14,6 +16,7 @@ const userValidator = async (ctx, next) => {
   }
   await next()
 }
+//注册时验证是否已经存在该用户
 const verifyUser = async (ctx, next) => {
   const { user_name } = ctx.request.body
   //合理性
@@ -35,8 +38,21 @@ const verifyUser = async (ctx, next) => {
   }
   await next()
 }
+//密码加盐
+const crpytPassword = async (ctx, next) => {
+  const { password } = ctx.request.body
+
+  const salt = bcrypt.genSaltSync(10)
+  // hash保存的是 密文
+  const hash = bcrypt.hashSync(password, salt)
+
+  ctx.request.body.password = hash
+
+  await next()
+}
 
 module.exports = {
   userValidator,
-  verifyUser
+  verifyUser,
+  crpytPassword
 }
