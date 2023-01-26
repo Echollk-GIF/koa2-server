@@ -228,3 +228,67 @@ class UserController {
 
 module.exports = new UserController()
 ```
+
+# 六. 解析 body
+
+## 1 安装 koa-body
+
+```
+npm i koa-body
+```
+
+
+
+## 2 注册中间件
+
+改写`app/index.js`
+
+```
+const KoaBody = require('koa-body')
+//KoaBody中间件要在所有路由之前
+app.use(KoaBody)
+```
+
+## 3 解析请求数据
+
+改写`user.controller.js`文件
+
+```
+const { createUser } = require('../service/user.service')
+
+class UserController {
+  async register(ctx, next) {
+    // 1. 获取数据
+    // console.log(ctx.request.body)
+    const { user_name, password } = ctx.request.body
+    // 2. 操作数据库
+    const res = await createUser(user_name, password)
+    // console.log(res)
+    // 3. 返回结果
+    ctx.body = ctx.request.body
+  }
+
+  async login(ctx, next) {
+    ctx.body = '登录成功'
+  }
+}
+
+module.exports = new UserController()
+```
+
+## 4 拆分 service 层
+
+service 层主要是做数据库处理
+
+创建`src/service/user.service.js`
+
+```
+class UserService {
+  async createUser(user_name, password) {
+    // todo: 写入数据库
+    return '写入数据库成功'
+  }
+}
+
+module.exports = new UserService()
+```
