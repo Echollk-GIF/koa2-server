@@ -1,6 +1,7 @@
 const { CreatUser } = require('../service/user.service')
 const { userRegisterError } = require('../constants/err.type')
 class UserController {
+  //用户注册
   async register (ctx, next) {
     //1.获取数据
     const { user_name, password } = ctx.request.body
@@ -24,8 +25,10 @@ class UserController {
     }
 
   }
+  //用户登录
   async login (ctx, next) {
-    ctx.body = '用户登录成功'
+    const { user_name } = ctx.request.body
+    ctx.body = `${user_name}用户登录成功`
   }
 }
 
