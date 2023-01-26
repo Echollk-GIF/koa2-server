@@ -859,7 +859,7 @@ npm i jsonwebtoken
 
 ### 2) 在控制器中改写 login 方法
 
-```
+```js
 async login(ctx, next) {
   const { user_name } = ctx.request.body
 
@@ -886,7 +886,7 @@ async login(ctx, next) {
 在`.env`定义
 
 ```
-JWT_SECRET = xzd
+JWT_SECRET = jwt
 ```
 
 ## 2 用户认证
