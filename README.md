@@ -62,3 +62,47 @@ npm i nodemon -D
 ```
 
 执行`npm run dev`启动服务
+
+## 2 读取配置文件
+
+安装`dotenv`, 读取根目录中的`.env`文件, 将配置写到`process.env`中
+
+```
+npm i dotenv
+```
+
+创建`.env`文件
+
+```
+APP_PORT=8000
+```
+
+创建`src/config/config.default.js`
+
+```
+const dotenv = require('dotenv')
+
+dotenv.config()
+
+// console.log(process.env.APP_PORT)
+
+module.exports = process.env
+```
+
+改写`main.js`
+
+```
+const Koa = require('koa')
+
+const { APP_PORT } = require('./config/config.default')
+
+const app = new Koa()
+
+app.use((ctx, next) => {
+  ctx.body = 'hello api'
+})
+
+app.listen(APP_PORT, () => {
+  console.log(`server is running on http://localhost:${APP_PORT}`)
+})
+```
