@@ -893,7 +893,7 @@ JWT_SECRET = jwt
 
 ### 1) 创建 auth 中间件
 
-```
+```js
 const jwt = require('jsonwebtoken')
 
 const { JWT_SECRET } = require('../config/config.default')
@@ -930,10 +930,11 @@ module.exports = {
 
 ### 2) 改写 router
 
-```
+```js
 // 修改密码接口
 router.patch('/', auth, (ctx, next) => {
   console.log(ctx.state.user)
   ctx.body = '修改密码成功'
 })
 ```
+
