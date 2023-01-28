@@ -10,7 +10,8 @@ const {
 const {
   createGoods,
   updateGoods,
-  removeGoods
+  removeGoods,
+  restoreGoods
 } = require('../service/goods.service')
 
 class GoodsController {
@@ -70,7 +71,7 @@ class GoodsController {
       console.error(err)
     }
   }
-  //删除商品
+  //删除、下架商品
   async remove (ctx) {
     const res = await removeGoods(ctx.params.id)
 
@@ -78,6 +79,19 @@ class GoodsController {
       ctx.body = {
         code: 0,
         message: '下架商品成功',
+        result: '',
+      }
+    } else {
+      return ctx.app.emit('error', invalidGoodsID, ctx)
+    }
+  }
+  //上架商品
+  async restore (ctx) {
+    const res = await restoreGoods(ctx.params.id)
+    if (res) {
+      ctx.body = {
+        code: 0,
+        message: '上架商品成功',
         result: '',
       }
     } else {

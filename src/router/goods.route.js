@@ -9,7 +9,8 @@ const {
   upload,
   create,
   update,
-  remove
+  remove,
+  restore
 } = require('../controller/goods.controller')
 const router = new Router({ prefix: '/goods' })
 
@@ -24,5 +25,9 @@ router.put('/:id', auth, hadAdminPermission, validator, update)
 
 //硬删除
 router.delete('/:id', auth, hadAdminPermission, remove)
+
+//软删除
+router.post('/:id/off', auth, hadAdminPermission, remove)
+router.post('/:id/on', auth, hadAdminPermission, restore)
 
 module.exports = router
