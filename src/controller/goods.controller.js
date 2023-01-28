@@ -2,8 +2,13 @@ const path = require('path')
 
 const {
   fileUploadError,
-  unSupportedFileType
+  unSupportedFileType,
+  publishGoodsError,
 } = require('../constants/err.type')
+
+const {
+  createGoods,
+} = require('../service/goods.service')
 
 class GoodsController {
   //上传图片
@@ -25,6 +30,23 @@ class GoodsController {
       }
     } else {
       return ctx.app.emit('error', fileUploadError, ctx)
+    }
+  }
+  //创建商品
+  async create (ctx) {
+    // 直接调用service的createGoods方法
+    try {
+      const { createdAt, updatedAt, ...res } = await createGoods(
+        ctx.request.body
+      )
+      ctx.body = {
+        code: 0,
+        message: '发布商品成功',
+        result: res,
+      }
+    } catch (err) {
+      console.error(err)
+      return ctx.app.emit('error', publishGoodsError, ctx)
     }
   }
 }
