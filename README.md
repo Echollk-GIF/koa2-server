@@ -941,3 +941,7 @@ router.patch('/', auth, (ctx, next) => {
 ## 十五. 图片上传
 
 前端选择文件发送请求，后端通过KoaBody接收并通过到upload文件夹，并通过KoaStatic回显
+
+## 十六. 参数验证
+
+使用koa-paramter中间件
