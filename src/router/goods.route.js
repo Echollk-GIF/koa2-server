@@ -8,7 +8,8 @@ const { validator } = require('../middleware/goods.middleware')
 const {
   upload,
   create,
-  update
+  update,
+  remove
 } = require('../controller/goods.controller')
 const router = new Router({ prefix: '/goods' })
 
@@ -20,4 +21,8 @@ router.post('/', auth, hadAdminPermission, validator, create)
 
 //修改商品信息
 router.put('/:id', auth, hadAdminPermission, validator, update)
+
+//硬删除
+router.delete('/:id', auth, hadAdminPermission, remove)
+
 module.exports = router

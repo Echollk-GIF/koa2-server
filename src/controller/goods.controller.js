@@ -9,7 +9,8 @@ const {
 
 const {
   createGoods,
-  updateGoods
+  updateGoods,
+  removeGoods
 } = require('../service/goods.service')
 
 class GoodsController {
@@ -67,6 +68,20 @@ class GoodsController {
       }
     } catch (err) {
       console.error(err)
+    }
+  }
+  //删除商品
+  async remove (ctx) {
+    const res = await removeGoods(ctx.params.id)
+
+    if (res) {
+      ctx.body = {
+        code: 0,
+        message: '下架商品成功',
+        result: '',
+      }
+    } else {
+      return ctx.app.emit('error', invalidGoodsID, ctx)
     }
   }
 }

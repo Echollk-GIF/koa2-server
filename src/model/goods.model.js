@@ -26,11 +26,11 @@ const Goods = seq.define(
       comment: '商品图片的url',
     },
   },
-  {
-    paranoid: true,
-  }
+  // {
+  //   paranoid: true,
+  // }
 )
 
-// Goods.sync({ force: true })
+Goods.sync({ force: true })
 
 module.exports = Goods

@@ -11,6 +11,11 @@ class GoodsService {
     const res = await Goods.update(goods, { where: { id } })
     return res[0] > 0 ? true : false
   }
+  //删除货物
+  async removeGoods (id) {
+    const res = await Goods.destroy({ where: { id } })
+    return res > 0 ? true : false
+  }
 }
 module.exports = new GoodsService()
 
